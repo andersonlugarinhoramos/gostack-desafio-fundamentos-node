@@ -15,20 +15,15 @@ class CreateTransactionService {
   }
 
   public execute({ title, value, type }: Request): Transaction {
-    if (type === 'outcome') {
-      const balance = this.transactionsRepository.getBalance().total;
-
-      if (value > balance) {
-        throw Error('Valor de saída maior do que valor em caixa');
-      }
+    const balance = this.transactionsRepository.getBalance();
+    if (type === 'outcome' && balance.total < value) {
+      throw Error('Insuficient funds.');
     }
-
     const transaction = this.transactionsRepository.create({
       title,
       value,
       type,
     });
-
     return transaction;
   }
 }
